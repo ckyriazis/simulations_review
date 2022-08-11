@@ -1,0 +1,166 @@
+initialize() {
+	initializeMutationRate(1.5e-8*2.31/3.31);
+	defineConstant("sampleSize", 100); //for sampling the pop for summary stats	
+	initializeMutationType("m1", 0.5, "g",-0.2, 0.33);
+	initializeGenomicElementType("g1", m1, 1.0);
+	
+	// set up 22 autosomes, each with gene_num # of genes
+	// set gene_num to result in 20,000-25,000 genes (Keightley 2012 doi: 10.1534/genetics.111.134668)
+	gene_num=1023;
+	
+	
+	gene_vec=rep(gene_num,22);
+	
+	//assume gene length of 1340bp (Keightley 2012 doi: 10.1534/genetics.111.134668)
+	//resulting in total sequence length of 26.8-33.5 Mb
+	defineConstant("geneLength", 1340);
+	
+	defineConstant("seqLength", sum(gene_vec)*geneLength);
+	
+	gene_num=sum(gene_vec);
+	
+	for (i in 1:gene_num){
+		initializeGenomicElement(g1, ((i-1)*geneLength)+(i-1), (i*geneLength)+(i-2) );
+	}
+	
+	rates=NULL;
+	
+	//assume no recombination within genes, a rate of 1e-3 between genes, and free recombination between chroms
+	for (i in 1:(size(gene_vec)-1)){
+		rates=c(rates, 0, rep(c(1e-3, 0), asInteger(gene_vec[i-1]-1)), 0.5);
+	}
+	rates=c(rates, 0, rep(c(1e-3, 0), asInteger(gene_vec[size(gene_vec)-1]-1)));
+	
+	ends=NULL;
+	for (i in 1:gene_num){
+		ends=c(ends, (i*geneLength)+(i-2), (i*geneLength)+(i-1));
+	}
+	ends=ends[0:(size(ends)-2)];
+	
+	initializeRecombinationRate(rates, ends);
+
+}
+
+///
+/// Demography:
+/// parameters here taken Kim 2017 1kG model 
+/// in tables S1 and S2
+/// parameters scaled in terms of diploids and generations
+
+1 {
+	sim.addSubpop("p1", 12378);
+	cat("gen,popSize,B,B_01,B_099" + "\n");
+	m1.convertToSubstitution = T;
+}
+
+fitness(m1) {
+	// remove negative sign since mutations here are negative
+	h = 0.5*exp(7.6*mut.selectionCoeff);
+	if (homozygous) {
+		return (1.0 + mut.selectionCoeff);
+	} else {
+		return (1.0 + mut.selectionCoeff * h);
+	}
+}
+
+//bottleneck to 1048 for 248 generations
+10000 {
+	p1.setSubpopulationSize(1048);
+	m1.convertToSubstitution = T;
+}
+
+// population growth to 13625 for 1744 generations
+10248 {
+	p1.setSubpopulationSize(13625);
+}
+
+// exponential growth for final 497 generations
+// to current population size of 659551
+11992:12489 {
+	t = sim.generation - 11992;
+	p1_size = round(13625 * (1 + 0.007831051)^t);
+	p1.setSubpopulationSize(asInteger(p1_size));
+}
+
+1:12489 late() {
+        if (sim.generation % 100 == 0 | sim.generation==12489) {
+                stats = getStats(p1, sampleSize);
+                cat(sim.generation + "," + p1.individuals.size() + "," + stats + "\n");
+
+        }
+
+}
+
+
+function (s) getStats(o pop, i sampSize)
+{
+	i = sample(pop.individuals, sampSize, F);
+	
+	//initialize vectors
+	B_pop = c();
+	B_pop_01 = c();
+	B_pop_099 = c();
+	
+	
+	for (individual in i) {
+		
+		del_muts = c(individual.genomes.mutationsOfType(m1));
+		
+		B_ind = c();
+		B_ind_01 = c();
+		B_ind_099 = c();
+		
+		
+		if (del_muts.length()>0) {
+			for(m in del_muts){
+				//check if mut is heterozygous
+				if(individual.genomes.mutationCountsInGenomes(m)==1){
+					//protect against case where s < -1 (can happen with gamma DFE)
+					s = max(m.selectionCoeff,-1.0);
+					h = 0.5*exp(7.6*s);
+					//difference in fitness between het and hom is s*(h-1) (1+sh -(1+s))
+					B_ind = c(B_ind, s*(h-1));
+					
+					
+					// get 2B only for mutations with s <= -0.1
+					if(m.selectionCoeff <= -0.1){
+						s = max(m.selectionCoeff,-1.0);
+						//difference in fitness between het and hom is s*(h-1) (1+sh -(1+s))
+						B_ind_01 = c(B_ind_01, s*(h-1));
+					}
+					else{
+						B_ind_01 = c(B_ind_01,0.0);
+					}
+					
+					
+					// get 2B only for mutations with s <= -0.99
+					if(m.selectionCoeff <= -0.99){
+						s = max(m.selectionCoeff,-1.0);
+						//difference in fitness between het and hom is s*(h-1) (1+sh -(1+s))
+						B_ind_099 = c(B_ind_099, s*(h-1));
+					}
+					else{
+						B_ind_099 = c(B_ind_099,0.0);
+					}
+				}
+			}
+			//this is summed rather than multiplied
+			//even if fitness is multiplicative 
+			B_pop = c(B_pop, sum(B_ind));
+			B_pop_01 = c(B_pop_01, sum(B_ind_01));
+			B_pop_099 = c(B_pop_099, sum(B_ind_099));
+		
+		
+		}
+		else{
+			B_pop = c(B_pop, 0.0);
+			B_pop_01 = c(B_pop_01, 0.0);
+			B_pop_099 = c(B_pop_099, 0.0);
+		
+		
+		}
+	
+	}
+	
+	return(mean(B_pop) + "," + mean(B_pop_01) + "," + mean(B_pop_099));
+}

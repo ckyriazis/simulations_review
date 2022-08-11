@@ -1,0 +1,125 @@
+initialize() {
+	initializeMutationRate(1.5e-8);
+	defineConstant("sampleSize", 60); //for sampling the pop for summary stats
+	defineConstant("sampleSizeSFS", 864); //for printing SFS
+	
+	initializeMutationType("m1", 0.5, "g",-0.05, 0.5);
+	initializeMutationType("m2", 0.0, "f",-1.0);
+        initializeMutationType("m3", 0.5, "f",0.0);
+
+	
+	initializeGenomicElementType("g1", c(m1,m2,m3), c(0.95,0.05,0.43));
+
+	
+	// set up 22 autosomes, each with gene_num # of genes
+	// set gene_num to result in 20,000-25,000 genes (Keightley 2012 doi: 10.1534/genetics.111.134668)
+	gene_num=1023;
+	
+	
+	gene_vec=rep(gene_num,22);
+	
+	//assume gene length of 1340bp (Keightley 2012 doi: 10.1534/genetics.111.134668)
+	//resulting in total sequence length of 26.8-33.5 Mb
+	defineConstant("geneLength", 1340);
+	
+	defineConstant("seqLength", sum(gene_vec)*geneLength);
+	
+	gene_num=sum(gene_vec);
+	
+	for (i in 1:gene_num){
+		initializeGenomicElement(g1, ((i-1)*geneLength)+(i-1), (i*geneLength)+(i-2) );
+	}
+	
+	rates=NULL;
+	
+	//assume no recombination within genes, a rate of 1e-3 between genes, and free recombination between chroms
+	for (i in 1:(size(gene_vec)-1)){
+		rates=c(rates, 0, rep(c(1e-3, 0), asInteger(gene_vec[i-1]-1)), 0.5);
+	}
+	rates=c(rates, 0, rep(c(1e-3, 0), asInteger(gene_vec[size(gene_vec)-1]-1)));
+	
+	ends=NULL;
+	for (i in 1:gene_num){
+		ends=c(ends, (i*geneLength)+(i-2), (i*geneLength)+(i-1));
+	}
+	ends=ends[0:(size(ends)-2)];
+	
+	initializeRecombinationRate(rates, ends);
+
+}
+
+///
+/// Demography:
+/// parameters here taken Kim 2017 1kG model 
+/// in tables S1 and S2
+/// parameters scaled in terms of diploids and generations
+
+1 {
+	sim.addSubpop("p1", 12378);
+	cat("gen,popSize" + "\n");
+	m1.convertToSubstitution = T;
+}
+
+fitness(m1) {
+	// remove negative sign since mutations here are negative
+	h = 0.5*exp(13*mut.selectionCoeff);
+	if (homozygous) {
+		return (1.0 + mut.selectionCoeff);
+	} else {
+		return (1.0 + mut.selectionCoeff * h);
+	}
+}
+
+
+//bottleneck to 1048 for 248 generations
+123780 {
+	p1.setSubpopulationSize(1048);
+}
+
+// population growth to 13625 for 1744 generations
+124028 {
+	p1.setSubpopulationSize(13625);
+}
+
+// exponential growth for final 497 generations
+// to current population size of 659551
+125772:126269 {
+	t = sim.generation - 125772;
+	p1_size = round(13625 * (1 + 0.007831051)^t);
+	p1.setSubpopulationSize(asInteger(p1_size));
+}
+
+
+1:126269 late() {
+	if (sim.generation % 1000 == 0 | sim.generation >= 125772) {
+		cat(sim.generation + "," + p1.individuals.size() + "\n");
+	
+	}
+}
+
+
+// output SFS at end of simulation
+126269 late() {
+	sampledHaploidGenomes= sample(p1.genomes, 864);
+       	nonsynMutationsInSample=unique(c(sampledHaploidGenomes.mutationsOfType(m1),sampledHaploidGenomes.mutationsOfType(m2)));
+        nonsyncounts=sampledHaploidGenomes.mutationCountsInGenomes(mutations=nonsynMutationsInSample);
+        synMutationsInSample=unique(sampledHaploidGenomes.mutationsOfType(m3));
+        syncounts=sampledHaploidGenomes.mutationCountsInGenomes(mutations=synMutationsInSample);
+
+        nonsyn_sfs = c();
+        syn_sfs = c();
+
+        for (i in seq(1,864)){
+        	ns_count=sum(nonsyncounts==i);
+                nonsyn_sfs = c(nonsyn_sfs,ns_count);
+
+                syn_count=sum(syncounts==i);
+                syn_sfs =c(syn_sfs,syn_count);
+        }
+        catn("nonsyn sfs:");
+        catn(nonsyn_sfs);
+        catn("syn sfs:");
+        catn(syn_sfs);
+}
+
+
