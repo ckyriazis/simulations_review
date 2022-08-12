@@ -1,0 +1,43 @@
+﻿Common_Name,Species,IUCN_Status,Observed_pi,Seq_Type,Source,DOI
+Island fox,Urocyon_littoralis,NT,1.42E-05,genome-wide,Robinson_2016,10.1016/j.cub.2016.02.062
+Vaquita,﻿Phocoena_sinus,CR,0.000105,genome-wide,Morin_2020,10.1111/1755-0998.13284
+Baiji,Lipotes_vexillifer,CR,0.000121,genome-wide,Zhou_2013,10.1038/ncomms3708
+Cheetah,Acinonyx_jubatus,VU,2.00E-04,genome-wide,Dobrynin_2015,10.1186/s13059-015-0837-4
+Snow leopard,Panthera_uncia,VU,0.000230595,genome-wide,Cho_2013,10.1038/ncomms3433
+Southern sea otter,Enhydra_lutris_nereis,EN,0.000274793,genome-wide,Beichman_2019,10.1093/molbev/msz101
+Tasmanian devil,Sarcophilus_harrisii,EN,0.000320457,genome-wide,Miller_2011,10.1073/pnas.1102838108
+Minnesota moose,Alces_alces,NA,0.000342513,genome-wide,this_Study,NA
+Alpine ibex,Capra_ibex,LC,0.000388911,genome-wide,Grossen_2020,﻿10.1038/s41467-020-14803-1
+Amur tiger,Panthera_tigris_altaica,EN,0.000486285,genome-wide,Cho_2013,10.1038/ncomms3433
+Swedish moose,Alces_alces,NA,0.000519438,genome-wide,this_Study,NA
+African lion,Panthera_leo,VU,0.000583903,genome-wide,Cho_2013,10.1038/ncomms3433
+Minke whale,Balaenoptera_acutorostrata,LC,0.00061,genome-wide,Yim_2014,10.1038/ng.2835
+Giant otter,Pteronura_brasiliensis,EN,0.000628296,genome-wide,Beichman_2019,10.1093/molbev/msz101
+Bornean Orangutan,Pongo_pygmaeus,CR,0.000647249,genome-wide,Locke_2011,10.1038/nature09687
+Orang-Utan_(Bornean),Pongo_pygmaeus,CR,0.000647249,genome-wide,Locke_2011,10.1038/nature09687
+Mountain gorilla,Gorilla_beringei_beringei,CR,0.000647885,genome-wide,Xue_2015,10.1126/science.aaa3952
+Iberian ibex,﻿Capra_pyrenaica,LC,0.000661387,genome-wide,Grossen_2020,﻿10.1038/s41467-020-14803-1
+White_Bengal_tiger,Panthera_tigris_tigris,EN,0.000728796,genome-wide,Cho_2013,10.1038/ncomms3433
+Markhor,Capra_falconeri,NT,0.000768027,genome-wide,Grossen_2020,﻿10.1038/s41467-020-14803-1
+African_green_monkey,Chlorocebus_aethiops_aethiops,LC,8.00E-04,genome-wide,Warren_2015,10.1101/gr.192922.115
+Chimpanzee_W_African,Pan_troglodytes_verus,CR,0.00095,genome-wide,The_Chimpanzee_Sequencing_and_Analysis_Consortium_2005,10.1038/nature04072
+Human,Homo_sapiens,NE,0.001037458,genome-wide,Corbett-Detig_2015,10.1371/journal.pbio.1002112
+Orang-Utan_(Sumatran),Pongo_abelii,CR,0.001197411,genome-wide,Locke_2011,10.1038/nature09687
+Gray fox,Urocyon_cinereoargenteus,LC,0.0012,genome-wide,Robinson_2016,10.1016/j.cub.2016.02.062
+Cow,Bos_taurus,NE,0.00121295,genome-wide,Corbett-Detig_2015,10.1371/journal.pbio.1002112
+Giant panda,Ailuropoda_melanoleuca,VU,0.00135,genome-wide,Leffler_2012,10.1371/journal.pbio.1001388
+Bottlenose dolphin,Tursiops_truncatus,LC,0.00142,genome-wide,Yim_2014,10.1038/ng.2835
+Western_lowland_gorilla,Gorilla_gorilla_gorilla,CR,0.001438033,genome-wide,Xue_2015,10.1126/science.aaa3952
+Gray wolf,Canis_lupus,LC,0.00149131,genome-wide,Corbett-Detig_2015,10.1371/journal.pbio.1002112
+Fin whale,Balaenoptera_physalus,EN,0.00151,genome-wide,Yim_2014,10.1038/ng.2835
+Nubian ibex,Capra_nubiana,VU,0.001513297,genome-wide,Grossen_2020,﻿10.1038/s41467-020-14803-1
+Chimpanzee_C_African,Pan_troglodytes_troglodytes,EN,0.00176,genome-wide,The_Chimpanzee_Sequencing_and_Analysis_Consortium_2005,10.1038/nature04072
+Vervet_monkey,Chlorocebus_aethiops_pygerythrus,LC,0.0018,genome-wide,Warren_2015,10.1101/gr.192922.115
+Olive_baboon,Papio_anubis,LC,0.001891814,genome-wide,Corbett-Detig_2015,10.1371/journal.pbio.1002112
+Bezoar,Capra_aegagrus,VU,0.001911981,genome-wide,Grossen_2020,﻿10.1038/s41467-020-14803-1
+Bighorn sheep,Ovis_canadensis,LC,0.002217712,genome-wide,Corbett-Detig_2015,10.1371/journal.pbio.1002112
+Siberian ibex,Capra_sibirica,LC,0.00224324,genome-wide,Grossen_2020,﻿10.1038/s41467-020-14803-1
+Rhesus_macaque,Macaca_mulatta,LC,0.002867064,genome-wide,Corbett-Detig_2015,10.1371/journal.pbio.1002112
+Przewalski's_horse,Equus_ferus_przewalskii,EN,0.003626078,genome-wide,Corbett-Detig_2015,10.1371/journal.pbio.1002112
+Wild_boar,Sus_scrofa,LC,0.004408209,genome-wide,Corbett-Detig_2015,10.1371/journal.pbio.1002112
+House_mouse_(SE_Asia),Mus_musculus_castaneus,LC,0.00809065,genome-wide,Corbett-Detig_2015,10.1371/journal.pbio.1002112
