@@ -1,13 +1,15 @@
 
-### script for creating Figure S4 in Kyriazis et al. 2022 biorxiv
+### script for creating Figure S4 in Kyriazis et al. 2023 AmNat
 
-setwd("~/Documents/UCLA/simulations_review/Analysis/Data/")
+# need to first set working directory to ~/data
 
+# read in data
 data <- read.csv("het_table_mammals.csv", header=T)
 
+# estimate Ne for each species as Ne=pi/(4*mu), where mu=1e-8
 Ne <- data$Observed_pi/(4*1e-8)
 
-setwd("~/Documents/UCLA/simulations_review/Analysis/Plots/")
+# plot histogram of Ne
 pdf("equilibrium_Ne.pdf", width = 7, height = 4)
 par(mar=c(5,5,2,2))
 
@@ -21,6 +23,8 @@ legend(lty = 2, col=c('black', '#009E73','#56B4E9'), legend = c('Median','Humans
 
 dev.off()
 
+
+# estimate median, mean, and quantiles
 median(Ne)
 mean(Ne)
 quantile(Ne, probs = c(0.01,0.05,0.5,0.95))

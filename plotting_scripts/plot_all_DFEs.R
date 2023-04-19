@@ -1,6 +1,6 @@
-### script for creating Figure 1 in Kyriazis et al. 2022 biorxiv
+### script for creating Figure 1 in Kyriazis et al. 2023 AmNat
 
-
+# function to subset each DFE into different mutation classes
 get_DFE_fracs <- function(shape, scale){
   g <- rgamma(n=1000000,shape = shape, scale= scale)
   
@@ -19,9 +19,10 @@ get_DFE_fracs <- function(shape, scale){
   wkDel <- g[g<0.001]
   wkDel_frac <- length(wkDel)/length(g)
   
-  return(c(lethals_frac,sublet_frac,strDel_frac,modDel_frac,wkDel_frac))
+  return(rev(c(lethals_frac,sublet_frac,strDel_frac,modDel_frac,wkDel_frac)))
 }
 
+## draw samples from each model and use function to get proportions of each mutation type
 
 # results for Kim 2017 DFE and Henn hs
 mean = 0.01314833
@@ -44,7 +45,7 @@ scale = mean/shape
 g <- rgamma(n=1000000,shape = shape, scale= scale)
 eyrewalker_DFE_fracs <- get_DFE_fracs(shape,scale)
 
-# results for Vaquita DFE
+# results for vaquita DFE
 mean = 0.0257224845852388
 shape = 0.13139582
 scale = mean/shape
@@ -83,9 +84,8 @@ g <- rgamma(n=1000000,shape = shape, scale= scale)
 orang_DFE_fracs <- get_DFE_fracs(shape,scale)
 
 
-
+# plot results as histogram
 setwd("~/Documents/UCLA/simulations_review/Analysis/Plots/")
-pdf("plot_all_DFEs.pdf", width = 10, height = 5)
 
 par(mar=c(5,5,2,2))
 library("RColorBrewer")
@@ -93,8 +93,8 @@ cols <- c(brewer.pal(3,"Blues"),brewer.pal(3,"Greens"),brewer.pal(3,"Reds"))
 
 DFEs <- rbind(kim_DFE_fracs,boyko_DFE_fracs,eyrewalker_DFE_fracs,orang_DFE_fracs,vaquita_DFE_fracs,mouse_DFE_fracs,yeast_DFE_fracs,dmel_DFE_fracs,arab_DFE_fracs)
 barplot(DFEs,beside=T, ylim=c(0,1), xlab="selection coefficient (s)", ylab="fraction of new mutations",
-        names.arg = c("-1.0","(-1, -0.1]", "(-0.1, -0.01]","(-0.01, -0.001]", "(-0.001, 0.0)"), cex.lab = 1.8, col=cols, cex.names =1.3, cex.axis=1.3)
-legend("topleft", legend=c("Humans (Kim et al. 2017)","Humans (Boyko et al. 2008)","Humans (Eyre-Walker et al. 2006)", "Orangutans (Ma et al. 2013)", "Vaquita (Robinson et al. 2022)","Mice (Huber et al. 2017)","Drosophila (Huber et al. 2017)","Yeast (Huber et al. 2017)","Arabidopsis (Huber et al. 2018)" ), 
+        names.arg = c("(0.0, 0.001)","[0.001, 0.01)","[0.01, 0.1)","[0.1, 1.0)","1.0"), cex.lab = 1.8, col=cols, cex.names =1.3, cex.axis=1.3)
+legend("topright", legend=c("Humans (Kim et al. 2017)","Humans (Boyko et al. 2008)","Humans (Eyre-Walker et al. 2006)", "Orangutans (Ma et al. 2013)", "Vaquita (Robinson et al. 2022)","Mice (Huber et al. 2017)","Drosophila (Huber et al. 2017)","Yeast (Huber et al. 2017)","Arabidopsis (Huber et al. 2018)" ), 
        fill=cols, cex=1.2, bty = "n")
 
 dev.off()
