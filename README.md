@@ -31,9 +31,3 @@ Finally, we also use this model for the analysis of nonequilibrium population dy
 One final analysis we conduct is to estimate the equilibrium effective population size (Ne) based on genome-wide heterozygosity estimates from 42 species of mammals. This data is included as **`data/het_table_mammals.csv`** and the script for plotting is **`plotting_scripts/plot_eq_Ne.R`**
 
 
-
-
-
-
-## Other 
-
