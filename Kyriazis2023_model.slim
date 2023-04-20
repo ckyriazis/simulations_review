@@ -133,7 +133,7 @@ initialize() {
 		inbreeding_load = 2*(sum(q*s)-sum(q^2*s)-2*sum(q*(1-q)*s*h));
 		
 		
-		catn(sim.generation + "," + p1.individuals.size() + "," + genetic_load + "," + inbreeding_load + "," + lethal_seg.length()  + "," + sublet_seg.length() + "," + strDel_seg.length() + "," + modDel_seg.length() + "," + wkDel_seg.length() + "," + lethal_fix.length() + "," + sublet_fix.length() + "," + strDel_fix.length() + "," + modDel_fix.length() + "," + wkDel_fix.length());
+		catn(sim.cycle + "," + p1.individuals.size() + "," + genetic_load + "," + inbreeding_load + "," + lethal_seg.length()  + "," + sublet_seg.length() + "," + strDel_seg.length() + "," + modDel_seg.length() + "," + wkDel_seg.length() + "," + lethal_fix.length() + "," + sublet_fix.length() + "," + strDel_fix.length() + "," + modDel_fix.length() + "," + wkDel_fix.length());
 	
 	}
 }
