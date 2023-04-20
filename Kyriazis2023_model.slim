@@ -70,7 +70,7 @@ initialize() {
 
 // simple constant size demography with N=5000
 // can make this demography arbitrarily complex as described in the SLiM manual
-1  {
+1  early() {
 	sim.addSubpop("p1", 5000);
 	cat("gen,popSize,genLoad,inbLoad,lethal_seg,sublet_seg,strDel_seg,modDel_seg,wkDel_seg,lethal_fix,sublet_fix,strDel_fix,modDel_fix,wkDel_fix,  " + "\n");
 
@@ -90,7 +90,7 @@ initialize() {
 // long enough for weakly deleterious mutations to reach equilibrium
 1:50000 early(){
 	// output statistics every 1000 generations
-	if (sim.generation % 1000 == 0) {
+	if (sim.cycle % 1000 == 0) {
 		
 		//get segregating muts
 		muts=sim.mutations;
