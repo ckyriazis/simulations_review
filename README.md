@@ -12,7 +12,7 @@ In Figures 1 and 2 in our paper, we visualize existing DFE and dominance models.
 
 In our paper, we set out to validate and compare several recent deleterious mutation models, including models from [Kyriazis et al. 2021](https://doi.org/10.1002/evl3.209), [Kardos et al. 2021](https://doi.org/10.1073/pnas.2104642118), and [Perez-Pereira et al. 2022](https://doi.org/10.1007/s10592-021-01405-7). In addition, we also propose a new model and include this model in our comparisons. 
 
-The first approach we use for model validation is to simulate under each model and compare the predicted site frequency spectrum (SFS) to an empirical SFS from the 1000 Genomes project dataset in humans. For these simulations, we used SLiM and simulated genetic variation for two human autosomes, outputing the neutral and synonymous SFS. 
+The first approach we use for model validation is to simulate under each model and compare the predicted site frequency spectrum (SFS) to an empirical SFS from the 1000 Genomes project dataset in humans. For these simulations, we used SLiM and simulated genetic variation for two human autosomes, outputing the neutral and synonymous SFS. The empirical 1000G synonymous and nonsynonymous SFS are included here as **`data/SFS_data/1kg_nonsyn.txt`** and **`data/SFS_data/1kg_syn.txt`**. 
 
 Scripts for these simulations are included in the **`simulation_scripts/SFS_scripts`** directory. The output data from our simulations is included in the **`data/SFS_data`** directory, and the script for plotting these results is **`plotting_scripts/plot_sfs.R`**.
 
