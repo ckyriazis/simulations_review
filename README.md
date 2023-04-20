@@ -2,7 +2,7 @@
 
 The aim of this paper is to provide an overview of computational simulation models in ecological and conservation genomics and review recent debates about simulation parameters. Here, we provide all SLiM scripts used in our analysis (found in the **`simulation_scripts`** directory), output data from SLiM simulations (found in the **`data`** directory), and R code for visualizing results (found in the **`plotting_scripts`** directory). All code was written by Chris Kyriazis (ckyriazis@g.ucla.edu). 
 
-Note that the software versions used here are SLiM v4.0.1 and R v3.5.0. 
+Note that the software versions used here are SLiM v4.0.1 and R v3.5.0. The latest SLiM version can be downloaded [here](https://messerlab.org/slim/).
 
 ## Scripts for visualizing existing DFE and dominance models
 
