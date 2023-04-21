@@ -3,18 +3,19 @@ initialize() {
 	defineConstant("sampleSize", 60); //for sampling the pop for summary stats
 	defineConstant("sampleSizeSFS", 864); //for printing SFS
 	
+	//set DFE parameters with additive mutations
+	//enforce dominance parameters with mutationEffect function below
 	initializeMutationType("m1", 0.5, "g",-0.2, 0.33);
 	initializeMutationType("m2", 0.5, "f",0.0);
 	
 	initializeGenomicElementType("g1", c(m1,m2), c(2.31,1.0));
 	
-	// set up 22 autosomes, each with gene_num # of genes
-	// set gene_num to result in 20,000-25,000 genes (Keightley 2012 doi: 10.1534/genetics.111.134668)
+	// set gene number for each autosome
+	// 1023 used to result in ~22,500 total genes across 22 autosomes
 	gene_num=1023;
 	
-	
 	// simulate two chr at a time
-	// add SFS from 11 replicates
+	// add SFS from different replicates
 	gene_vec=rep(gene_num,2);
 	
 	//assume gene length of 1340bp (Keightley 2012 doi: 10.1534/genetics.111.134668)
@@ -56,19 +57,22 @@ initialize() {
 1 early() {
 	sim.addSubpop("p1", 12378);
 	cat("gen,popSize" + "\n");
+	// convert fixed mutations to substitutions for computational efficiency
 	m1.convertToSubstitution = T;
 }
 
+// draw h from a uniform based on s
 mutation(m1) {
 	mut.setValue("dom", runif(n=1,min=0,max=exp(7.6*mut.selectionCoeff)));
 	return T;
 }
 
+// use mutationEffect to enforce h-s relationship - note that this is very slow
 mutationEffect(m1) {
- if (homozygous)
- 	return 1.0 + mut.selectionCoeff;
- else
- 	return 1.0 + mut.getValue("dom") * mut.selectionCoeff;
+	if (homozygous)
+		return 1.0 + mut.selectionCoeff;
+	else
+		return 1.0 + mut.getValue("dom") * mut.selectionCoeff;
 }
 
 //bottleneck to 1048 for 248 generations
@@ -89,14 +93,13 @@ mutationEffect(m1) {
 	p1.setSubpopulationSize(asInteger(p1_size));
 }
 
-
+// print generation and pop size every 1000 cycles and during the last one
 1:126269 late() {
 	if (sim.cycle % 1000 == 0 | sim.cycle >= 125772) {
 		cat(sim.cycle + "," + p1.individuals.size() + "\n");
 	
 	}
 }
-
 
 // output SFS at end of simulation
 126269 late() {
@@ -110,6 +113,7 @@ mutationEffect(m1) {
 	nonsyn_sfs = c();
 	syn_sfs = c();
 	
+	// tally up SFS
 	for (i in seq(1,sampleSizeSFS)){
 		ns_count=sum(m1counts==i);
 		nonsyn_sfs = c(nonsyn_sfs,ns_count);
@@ -117,6 +121,8 @@ mutationEffect(m1) {
 		syn_count=sum(m2counts==i);
 		syn_sfs =c(syn_sfs,syn_count);
 	}
+	
+	// print resulting SFS
 	catn("nonsyn sfs:");
 	catn(nonsyn_sfs);
 	catn("syn sfs:");

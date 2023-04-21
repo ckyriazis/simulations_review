@@ -1,37 +1,36 @@
 initialize() {
 	initializeMutationRate(1.5e-8);
 	defineConstant("sampleSizeSFS", 864); //for printing SFS
-
+	
 	// set dominance coefficients for different deleterious mutation types
-        defineConstant("h_wkDel", 0.45);
-        defineConstant("h_modDel", 0.2);
-        defineConstant("h_strDel", 0.05);
-        defineConstant("h_sublet", 0.0);
-        defineConstant("h_let", 0.0);
-
-        // set up discrete DFE with four mutation types coming from gamma DFE
-        // augmented with recessive lethals
-        initializeMutationType("m1", h_wkDel, "s", "do x=rgamma(1,-0.01314833,0.186); while (x < -0.001); return x;");
-        initializeMutationType("m2", h_modDel, "s", "do x=rgamma(1,-0.01314833,0.186); while (x < -0.01 | x >= -0.001); return x;");
-        initializeMutationType("m3", h_strDel, "s", "do x=rgamma(1,-0.01314833,0.186); while (x < -0.1 | x >= -0.01); return x;");
-        initializeMutationType("m4", h_sublet, "s", "do x=rgamma(1,-0.01314833,0.186); while (x >= -0.1); return x;");
-        initializeMutationType("m5", h_let,"f", -1.0);
-        initializeMutationType("m6", 0.5,"f", 0.0);
-
-
-        // proportion of new deleterious mutations that are recessive lethal
-        defineConstant("let_frac", 0.003);
-
-        initializeGenomicElementType("g1", c(m1,m2,m3,m4,m5,m6), c(0.491*(1-let_frac), 0.247*(1-let_frac), 0.236*(1-let_frac), 0.026*(1-let_frac), let_frac, 0.433));
-
-
-	// set up 22 autosomes, each with gene_num # of genes
-	// set gene_num to result in 20,000-25,000 genes (Keightley 2012 doi: 10.1534/genetics.111.134668)
+	defineConstant("h_wkDel", 0.45);
+	defineConstant("h_modDel", 0.2);
+	defineConstant("h_strDel", 0.05);
+	defineConstant("h_sublet", 0.0);
+	defineConstant("h_let", 0.0);
+	
+	// set up discrete DFE with four mutation types coming from gamma DFE
+	// augmented with recessive lethals
+	initializeMutationType("m1", h_wkDel, "s", "do x=rgamma(1,-0.01314833,0.186); while (x < -0.001); return x;");
+	initializeMutationType("m2", h_modDel, "s", "do x=rgamma(1,-0.01314833,0.186); while (x < -0.01 | x >= -0.001); return x;");
+	initializeMutationType("m3", h_strDel, "s", "do x=rgamma(1,-0.01314833,0.186); while (x < -0.1 | x >= -0.01); return x;");
+	initializeMutationType("m4", h_sublet, "s", "do x=rgamma(1,-0.01314833,0.186); while (x >= -0.1); return x;");
+	initializeMutationType("m5", h_let,"f", -1.0);
+	initializeMutationType("m6", 0.5,"f", 0.0);
+	
+	
+	// proportion of new deleterious mutations that are recessive lethal
+	defineConstant("let_frac", 0.003);
+	
+	initializeGenomicElementType("g1", c(m1,m2,m3,m4,m5,m6), c(0.491*(1-let_frac), 0.247*(1-let_frac), 0.236*(1-let_frac), 0.026*(1-let_frac), let_frac, 0.433));
+	
+	
+	// set gene number for each autosome
+	// 1023 used to result in ~22,500 total genes across 22 autosomes
 	gene_num=1023;
 	
-	
 	// simulate two chr at a time
-	// add SFS from 11 replicates
+	// add SFS from different replicates
 	gene_vec=rep(gene_num,2);
 	
 	//assume gene length of 1340bp (Keightley 2012 doi: 10.1534/genetics.111.134668)
@@ -73,12 +72,13 @@ initialize() {
 1 early() {
 	sim.addSubpop("p1", 12378);
 	cat("gen,popSize" + "\n");
+	// convert fixed mutations to substitutions for computational efficiency
 	m1.convertToSubstitution = T;
-        m2.convertToSubstitution = T;
-        m3.convertToSubstitution = T;
-        m4.convertToSubstitution = T;
-        m5.convertToSubstitution = T;
-        m6.convertToSubstitution = T;
+	m2.convertToSubstitution = T;
+	m3.convertToSubstitution = T;
+	m4.convertToSubstitution = T;
+	m5.convertToSubstitution = T;
+	m6.convertToSubstitution = T;
 
 }
 
@@ -101,7 +101,7 @@ initialize() {
 	p1.setSubpopulationSize(asInteger(p1_size));
 }
 
-
+// print generation and pop size every 1000 cycles and during the last one
 1:126269 late() {
 	if (sim.cycle % 1000 == 0 | sim.cycle >= 125772) {
 		cat(sim.cycle + "," + p1.individuals.size() + "\n");
@@ -109,27 +109,27 @@ initialize() {
 	}
 }
 
-
+// output SFS at end of simulation
 126269 late() {
 	sampledHaploidGenomes= sample(p1.genomes, 864);
-       	nonsynMutationsInSample=unique(c(sampledHaploidGenomes.mutationsOfType(m1),sampledHaploidGenomes.mutationsOfType(m2),sampledHaploidGenomes.mutationsOfType(m3),sampledHaploidGenomes.mutationsOfType(m4),sampledHaploidGenomes.mutationsOfType(m5)));
-        nonsyncounts=sampledHaploidGenomes.mutationCountsInGenomes(mutations=nonsynMutationsInSample);
-        synMutationsInSample=unique(sampledHaploidGenomes.mutationsOfType(m6));
-        syncounts=sampledHaploidGenomes.mutationCountsInGenomes(mutations=synMutationsInSample);
-
-        nonsyn_sfs = c();
-        syn_sfs = c();
-
-        for (i in seq(1,864)){
-        	ns_count=sum(nonsyncounts==i);
-                nonsyn_sfs = c(nonsyn_sfs,ns_count);
-
-                syn_count=sum(syncounts==i);
-                syn_sfs =c(syn_sfs,syn_count);
-        }
-        catn("nonsyn sfs:");
-        catn(nonsyn_sfs);
-        catn("syn sfs:");
-        catn(syn_sfs);
+	nonsynMutationsInSample=unique(c(sampledHaploidGenomes.mutationsOfType(m1),sampledHaploidGenomes.mutationsOfType(m2),sampledHaploidGenomes.mutationsOfType(m3),sampledHaploidGenomes.mutationsOfType(m4),sampledHaploidGenomes.mutationsOfType(m5)));
+	nonsyncounts=sampledHaploidGenomes.mutationCountsInGenomes(mutations=nonsynMutationsInSample);
+	synMutationsInSample=unique(sampledHaploidGenomes.mutationsOfType(m6));
+	syncounts=sampledHaploidGenomes.mutationCountsInGenomes(mutations=synMutationsInSample);
+	
+	nonsyn_sfs = c();
+	syn_sfs = c();
+	
+	for (i in seq(1,864)){
+		ns_count=sum(nonsyncounts==i);
+		nonsyn_sfs = c(nonsyn_sfs,ns_count);
+		
+		syn_count=sum(syncounts==i);
+		syn_sfs =c(syn_sfs,syn_count);
+	}
+	catn("nonsyn sfs:");
+	catn(nonsyn_sfs);
+	catn("syn sfs:");
+	catn(syn_sfs);
 }
 

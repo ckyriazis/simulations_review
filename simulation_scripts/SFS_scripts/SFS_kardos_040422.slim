@@ -3,20 +3,22 @@ initialize() {
 	defineConstant("sampleSize", 60); //for sampling the pop for summary stats
 	defineConstant("sampleSizeSFS", 864); //for printing SFS
 	
+	//set DFE parameters with additive mutations
+	//enforce dominance parameters with mutationEffect function below
 	initializeMutationType("m1", 0.5, "g",-0.05, 0.5);
 	initializeMutationType("m2", 0.0, "f",-1.0);
-        initializeMutationType("m3", 0.5, "f",0.0);
-
+	initializeMutationType("m3", 0.5, "f",0.0);
 	
+	// set ratios to have 5% recessive lethal mutations and a ratio of 2.31:1 of deleterious:neutral mutations
 	initializeGenomicElementType("g1", c(m1,m2,m3), c(0.95,0.05,0.43));
-
 	
-	// set up 22 autosomes, each with gene_num # of genes
-	// set gene_num to result in 20,000-25,000 genes (Keightley 2012 doi: 10.1534/genetics.111.134668)
+	// set gene number for each autosome
+	// 1023 used to result in ~22,500 total genes across 22 autosomes
 	gene_num=1023;
 	
-	
-	gene_vec=rep(gene_num,22);
+	// simulate two chr at a time
+	// add SFS from different replicates
+	gene_vec=rep(gene_num,2);
 	
 	//assume gene length of 1340bp (Keightley 2012 doi: 10.1534/genetics.111.134668)
 	//resulting in total sequence length of 26.8-33.5 Mb
@@ -57,9 +59,11 @@ initialize() {
 1 early() {
 	sim.addSubpop("p1", 12378);
 	cat("gen,popSize" + "\n");
+	// convert fixed mutations to substitutions for computational efficiency
 	m1.convertToSubstitution = T;
 }
 
+// use mutationEffect to enforce h-s relationship - note that this is very slow
 mutationEffect(m1) {
 	// remove negative sign since mutations here are negative
 	h = 0.5*exp(13*mut.selectionCoeff);
@@ -89,7 +93,7 @@ mutationEffect(m1) {
 	p1.setSubpopulationSize(asInteger(p1_size));
 }
 
-
+// print generation and pop size every 1000 cycles and during the last one
 1:126269 late() {
 	if (sim.cycle % 1000 == 0 | sim.cycle >= 125772) {
 		cat(sim.cycle + "," + p1.individuals.size() + "\n");
@@ -97,29 +101,28 @@ mutationEffect(m1) {
 	}
 }
 
-
 // output SFS at end of simulation
 126269 late() {
 	sampledHaploidGenomes= sample(p1.genomes, 864);
-       	nonsynMutationsInSample=unique(c(sampledHaploidGenomes.mutationsOfType(m1),sampledHaploidGenomes.mutationsOfType(m2)));
-        nonsyncounts=sampledHaploidGenomes.mutationCountsInGenomes(mutations=nonsynMutationsInSample);
-        synMutationsInSample=unique(sampledHaploidGenomes.mutationsOfType(m3));
-        syncounts=sampledHaploidGenomes.mutationCountsInGenomes(mutations=synMutationsInSample);
-
-        nonsyn_sfs = c();
-        syn_sfs = c();
-
-        for (i in seq(1,864)){
-        	ns_count=sum(nonsyncounts==i);
-                nonsyn_sfs = c(nonsyn_sfs,ns_count);
-
-                syn_count=sum(syncounts==i);
-                syn_sfs =c(syn_sfs,syn_count);
-        }
-        catn("nonsyn sfs:");
-        catn(nonsyn_sfs);
-        catn("syn sfs:");
-        catn(syn_sfs);
+	nonsynMutationsInSample=unique(c(sampledHaploidGenomes.mutationsOfType(m1),sampledHaploidGenomes.mutationsOfType(m2)));
+	nonsyncounts=sampledHaploidGenomes.mutationCountsInGenomes(mutations=nonsynMutationsInSample);
+	synMutationsInSample=unique(sampledHaploidGenomes.mutationsOfType(m3));
+	syncounts=sampledHaploidGenomes.mutationCountsInGenomes(mutations=synMutationsInSample);
+	
+	nonsyn_sfs = c();
+	syn_sfs = c();
+	
+	for (i in seq(1,864)){
+		ns_count=sum(nonsyncounts==i);
+		nonsyn_sfs = c(nonsyn_sfs,ns_count);
+		
+		syn_count=sum(syncounts==i);
+		syn_sfs =c(syn_sfs,syn_count);
+	}
+	catn("nonsyn sfs:");
+	catn(nonsyn_sfs);
+	catn("syn sfs:");
+	catn(syn_sfs);
 }
 
 
