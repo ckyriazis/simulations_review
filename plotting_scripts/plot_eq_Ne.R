@@ -1,7 +1,7 @@
 
 ### script for creating Figure S4 in Kyriazis et al. 2023 AmNat
 
-# need to first set working directory to ~/data
+# setwd to directory containing data files
 
 # read in data
 data <- read.csv("het_table_mammals.csv", header=T)

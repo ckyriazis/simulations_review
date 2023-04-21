@@ -6,7 +6,7 @@
 # B_01 is inbreeding load due to mutations with s<=-0.1
 # B_099 is inbreeding load due to mutations with s<=-0.99
 
-# need to set working directory to ~/data
+# setwd to directory containing data files
 newDFE_data <- read.csv("newDFE_2B_sim.csv")
 perez_data <- read.csv("perez_2B_sim.csv")
 kardos_data <- read.csv("kardos_2B_sim.csv")
