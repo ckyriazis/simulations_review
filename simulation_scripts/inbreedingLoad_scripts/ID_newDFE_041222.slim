@@ -1,33 +1,38 @@
 initialize() {
+	// for computational efficiency, dont model neutral(synonymous) mutations here and rescale mutation rate accordingly
+	// Huber et al 2017 estimate a 1:2.31 ratio of synonymous to nonsynonymous mutations
+	// neutral mutations could be added in by removing rescaling factor and adding in a neutral mutation type below
+	// or by using tree sequences - see SLiM manual for details on tree sequence recording
 	initializeMutationRate(1.5e-8*2.31/3.31);
 	defineConstant("sampleSize", 100); //for sampling the pop for summary stats	
-
-        // set dominance coefficients for different deleterious mutation types
-        defineConstant("h_wkDel", 0.45);
-        defineConstant("h_modDel", 0.2);
-        defineConstant("h_strDel", 0.05);
-        defineConstant("h_sublet", 0.0);
-        defineConstant("h_let", 0.0);
-
-        // set up discrete DFE with four mutation types coming from gamma DFE
-        // augmented with recessive lethals
-        initializeMutationType("m1", h_wkDel, "s", "do x=rgamma(1,-0.01314833,0.186); while (x < -0.001); return x;");
-        initializeMutationType("m2", h_modDel, "s", "do x=rgamma(1,-0.01314833,0.186); while (x < -0.01 | x >= -0.001); return x;");
-        initializeMutationType("m3", h_strDel, "s", "do x=rgamma(1,-0.01314833,0.186); while (x < -0.1 | x >= -0.01); return x;");
-        initializeMutationType("m4", h_sublet, "s", "do x=rgamma(1,-0.01314833,0.186); while (x >= -0.1); return x;");
-        initializeMutationType("m5", h_let,"f", -1.0);
-
-        // proportion of new deleterious mutations that are recessive lethal
-        defineConstant("let_frac", 0.003);
-
-        initializeGenomicElementType("g1", c(m1,m2,m3,m4,m5), c(0.491*(1-let_frac), 0.247*(1-let_frac), 0.236*(1-let_frac), 0.026*(1-let_frac), let_frac));
-
-
+	
+	// set dominance coefficients for different deleterious mutation types
+	defineConstant("h_wkDel", 0.45);
+	defineConstant("h_modDel", 0.2);
+	defineConstant("h_strDel", 0.05);
+	defineConstant("h_sublet", 0.0);
+	defineConstant("h_let", 0.0);
+	
+	// set up discrete DFE with four mutation types coming from gamma DFE
+	// augmented with recessive lethals
+	// note that this discrete approach differs from other models, but is preferable since it is much faster
+	// compared to using mutationEffect callbacks
+	initializeMutationType("m1", h_wkDel, "s", "do x=rgamma(1,-0.01314833,0.186); while (x < -0.001); return x;");
+	initializeMutationType("m2", h_modDel, "s", "do x=rgamma(1,-0.01314833,0.186); while (x < -0.01 | x >= -0.001); return x;");
+	initializeMutationType("m3", h_strDel, "s", "do x=rgamma(1,-0.01314833,0.186); while (x < -0.1 | x >= -0.01); return x;");
+	initializeMutationType("m4", h_sublet, "s", "do x=rgamma(1,-0.01314833,0.186); while (x >= -0.1); return x;");
+	initializeMutationType("m5", h_let,"f", -1.0);
+	
+	// proportion of new deleterious mutations that are recessive lethal
+	defineConstant("let_frac", 0.003);
+	
+	// set ratio of mutation types according to DFE proportions, accouting for 0.3% lethals
+	initializeGenomicElementType("g1", c(m1,m2,m3,m4,m5), c(0.491*(1-let_frac), 0.247*(1-let_frac), 0.236*(1-let_frac), 0.026*(1-let_frac), let_frac));
+	
 	
 	// set up 22 autosomes, each with gene_num # of genes
 	// set gene_num to result in 20,000-25,000 genes (Keightley 2012 doi: 10.1534/genetics.111.134668)
 	gene_num=1023;
-	
 	
 	gene_vec=rep(gene_num,22);
 	
@@ -93,16 +98,17 @@ initialize() {
 	p1.setSubpopulationSize(asInteger(p1_size));
 }
 
+// output stats every 100 generations and at the last generation
 1:12489 late() {
-        if (sim.cycle % 100 == 0 | sim.cycle==12489) {
-                stats = getStats(p1, sampleSize);
-                cat(sim.cycle + "," + p1.individuals.size() + "," + stats  + "\n");
-
-        }
+	if (sim.cycle % 100 == 0 | sim.cycle==12489) {
+		stats = getStats(p1, sampleSize);
+		cat(sim.cycle + "," + p1.individuals.size() + "," + stats  + "\n");
+	
+	}
 
 }
 
-
+// this function outputs inbreeding load partitioned into different s bins
 function (s) getStats(o pop, i sampSize)
 {
 	i = sample(pop.individuals, sampSize, F);

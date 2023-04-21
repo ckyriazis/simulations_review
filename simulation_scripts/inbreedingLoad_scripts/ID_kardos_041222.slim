@@ -1,6 +1,12 @@
 initialize() {
+	// for computational efficiency, dont model neutral(synonymous) mutations here and rescale mutation rate accordingly
+	// Huber et al 2017 estimate a 1:2.31 ratio of synonymous to nonsynonymous mutations
+	// neutral mutations could be added in by removing rescaling factor and adding in a neutral mutation type below
+	// or by using tree sequences - see SLiM manual for details on tree sequence recording
 	initializeMutationRate(1.5e-8*2.31/3.31);
 	defineConstant("sampleSize", 100); //for sampling the pop for summary stats	
+	//set DFE parameters with additive mutations
+	//enforce dominance parameters with mutationEffect function below
 	initializeMutationType("m1", 0.5, "g",-0.05, 0.5);
 	initializeMutationType("m2", 0.0, "f",-1.0);
 	initializeGenomicElementType("g1", c(m1,m2), c(0.95,0.05));
@@ -54,6 +60,7 @@ initialize() {
 	m1.convertToSubstitution = T;
 }
 
+// use mutationEffect to enforce h-s relationship - note that this is very slow
 mutationEffect(m1) {
 	// remove negative sign since mutations here are negative
 	h = 0.5*exp(13*mut.selectionCoeff);
@@ -83,7 +90,7 @@ mutationEffect(m1) {
 	p1.setSubpopulationSize(asInteger(p1_size));
 }
 
-
+// output stats every 100 generations and at the last generation
 1:12489 late() {
 	if (sim.cycle % 100 == 0 | sim.cycle==12489) {
 		stats = getStats(p1, sampleSize);
@@ -93,7 +100,7 @@ mutationEffect(m1) {
 
 }
 
-
+// this function outputs inbreeding load partitioned into different s bins
 function (s) getStats(o pop, i sampSize)
 {
 	i = sample(pop.individuals, sampSize, F);

@@ -1,6 +1,12 @@
 initialize() {
+	// for computational efficiency, dont model neutral(synonymous) mutations here and rescale mutation rate accordingly
+	// Huber et al 2017 estimate a 1:2.31 ratio of synonymous to nonsynonymous mutations
+	// neutral mutations could be added in by removing rescaling factor and adding in a neutral mutation type below
+	// or by using tree sequences - see SLiM manual for details on tree sequence recording
 	initializeMutationRate(1.5e-8*2.31/3.31);
 	defineConstant("sampleSize", 100); //for sampling the pop for summary stats	
+	//set DFE parameters with additive mutations
+	//enforce dominance parameters with mutationEffect function below
 	initializeMutationType("m1", 0.5, "g",-0.2, 0.33);
 	initializeGenomicElementType("g1", m1, 1.0);
 	
@@ -53,17 +59,18 @@ initialize() {
 	m1.convertToSubstitution = T;
 }
 
-
+// draw h from a uniform based on s
 mutation(m1) {
 	mut.setValue("dom", runif(n=1,min=0,max=exp(7.6*mut.selectionCoeff)));
 	return T;
 }
 
+// use mutationEffect to enforce h-s relationship - note that this is very slow
 mutationEffect(m1) {
- if (homozygous)
- 	return 1.0 + mut.selectionCoeff;
- else
- 	return 1.0 + mut.getValue("dom") * mut.selectionCoeff;
+	if (homozygous)
+		return 1.0 + mut.selectionCoeff;
+	else
+		return 1.0 + mut.getValue("dom") * mut.selectionCoeff;
 }
 
 //bottleneck to 1048 for 248 generations
@@ -86,15 +93,15 @@ mutationEffect(m1) {
 }
 
 1:12489 late() {
-        if (sim.cycle % 100 == 0 | sim.cycle==12489) {
-                stats = getStats(p1, sampleSize);
-                cat(sim.cycle + "," + p1.individuals.size() + "," + stats + "\n");
-
-        }
+	if (sim.cycle % 100 == 0 | sim.cycle==12489) {
+		stats = getStats(p1, sampleSize);
+		cat(sim.cycle + "," + p1.individuals.size() + "," + stats + "\n");
+	
+	}
 
 }
 
-
+// this function outputs inbreeding load partitioned into different s bins
 function (s) getStats(o pop, i sampSize)
 {
 	i = sample(pop.individuals, sampSize, F);
@@ -123,7 +130,6 @@ function (s) getStats(o pop, i sampSize)
 					h = m.getValue("dom");
 					//difference in fitness between het and hom is s*(h-1) (1+sh -(1+s))
 					B_ind = c(B_ind, s*(h-1));
-					
 					
 					// get 2B only for mutations with s <= -0.1
 					if(m.selectionCoeff <= -0.1){
