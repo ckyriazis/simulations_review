@@ -1,6 +1,5 @@
 ### script for creating Figure 1 in Kyriazis et al. 2023 AmNat
 
-
 # function to subset each DFE into different mutation classes
 get_DFE_fracs <- function(shape, scale){
   g <- rgamma(n=1000000,shape = shape, scale= scale)
@@ -71,14 +70,14 @@ scale=3.8e-04
 g <- rgamma(n=1000000,shape = shape, scale= scale)
 dmel_DFE_fracs <- get_DFE_fracs(shape,scale)
 
-# arabidopsis from Huber 2018
+# arabidopsis
 mean = 0.00048655
 shape = 0.185
 scale = mean/shape
 g <- rgamma(n=1000000,shape = shape, scale= scale)
 arab_DFE_fracs <- get_DFE_fracs(shape,scale)
 
-# orangutans from Ma 2013
+# orangutans
 shape=0.16
 scale=14392/17934
 g <- rgamma(n=1000000,shape = shape, scale= scale)
@@ -87,6 +86,7 @@ orang_DFE_fracs <- get_DFE_fracs(shape,scale)
 
 # plot results as histogram
 setwd("~/Documents/UCLA/simulations_review/Analysis/Plots/")
+pdf("plot_all_DFEs.pdf", width = 10, height = 5)
 
 par(mar=c(5,5,2,2))
 library("RColorBrewer")
